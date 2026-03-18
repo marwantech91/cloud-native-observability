@@ -186,3 +186,20 @@ export function metricsMiddleware(prefix = 'http') {
     next();
   };
 }
+
+// === Health Check Helper ===
+
+export function createHealthIndicator(serviceName: string) {
+  const startTime = Date.now();
+
+  return {
+    getStatus() {
+      return {
+        service: serviceName,
+        status: 'healthy' as const,
+        uptime: Math.floor((Date.now() - startTime) / 1000),
+        timestamp: new Date().toISOString(),
+      };
+    },
+  };
+}
