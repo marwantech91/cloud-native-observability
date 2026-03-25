@@ -203,3 +203,8 @@ export function createHealthIndicator(serviceName: string) {
     },
   };
 }
+
+/** Check whether the telemetry SDK has been initialized */
+export function isInitialized(): boolean {
+  return sdk !== null;
+}
