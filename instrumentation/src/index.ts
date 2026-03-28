@@ -208,3 +208,18 @@ export function createHealthIndicator(serviceName: string) {
 export function isInitialized(): boolean {
   return sdk !== null;
 }
+
+/** Create SLO tracking metrics for a service endpoint */
+export function createSLOMetrics(prefix: string, targetLatencyMs: number) {
+  const totalCounter = createCounter(`${prefix}_slo_total`, 'Total requests tracked for SLO');
+  const breachCounter = createCounter(`${prefix}_slo_breaches`, 'Requests that breached the latency SLO');
+
+  return {
+    record(durationMs: number, attributes?: Record<string, string>) {
+      totalCounter.add(1, attributes);
+      if (durationMs > targetLatencyMs) {
+        breachCounter.add(1, attributes);
+      }
+    },
+  };
+}
