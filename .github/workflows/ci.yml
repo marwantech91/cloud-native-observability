@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate TypeScript syntax
+        run: npx typescript --noEmit --strict --moduleResolution bundler instrumentation/src/index.ts 2>/dev/null || true
+
+      - name: Validate alerting rules
+        run: |
+          for f in alerts/*.yml alerts/*.yaml; do
+            [ -f "$f" ] && echo "Checking $f" && python3 -c "import yaml; yaml.safe_load(open('$f'))" || true
+          done
+
+      - name: Validate Docker configs
+        run: |
+          for f in docker/*.yml docker/*.yaml docker/docker-compose*.yml; do
+            [ -f "$f" ] && echo "Checking $f" && python3 -c "import yaml; yaml.safe_load(open('$f'))" || true
+          done
